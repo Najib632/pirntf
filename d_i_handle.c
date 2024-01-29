@@ -24,7 +24,7 @@ int handle_d(va_list args)
 {
 	int numlen = 0;
 	int n = va_arg(args, int);
-	int number = n;
+	unsigned int number;
 
 	if (n < 0)
 	{
@@ -32,6 +32,7 @@ int handle_d(va_list args)
 		n = -n;
 		numlen++;
 	}
+	number = n;
 	print_number(number, &numlen);
 	return (numlen);
 }
