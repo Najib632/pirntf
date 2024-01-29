@@ -13,6 +13,7 @@ int (*get_fmt(char spec))(va_list)
 		{"s", handle_s},
 		{"d", handle_d},
 		{"i", handle_d},
+		{"b", handle_b},
 		{NULL, NULL}
 	};
 	int i = 0;
