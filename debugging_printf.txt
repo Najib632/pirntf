@@ -1,0 +1,198 @@
+I am trying to build a custom printf function which act almost exactly alike, I have named it as _printf. I want the printf function to not look complex so I created like an middle interface that will call functions that will respond to place holders detected in the format constant string. Help me to find errors in the code please:
+The main header file:
+```C
+#ifndef _MAIN_H_
+#define _MAIN_H_
+
+#include <stdarg.h>
+#include <stdlib.h>
+
+
+int _putchar(char c);
+int _printf(const char *format, ...);
+
+/**
+ * struct format_s - format parser
+ * @spec: format specifier
+ * @handle: pointer to a function
+ **/
+typedef struct format_s
+{
+	char *spec;
+	int (*handle)(va_list);
+} format_t;
+
+int (*get_fmt(char spec))(va_list);
+int handle_c(va_list args);
+int handle_s(va_list args);
+int handle_d(va_list args);
+
+#endif /*_MAIN_H_*/
+```
+
+The main function:
+```C
+#include <stdio.h>
+#include <limits.h>
+#include "main.h"
+
+/**
+ * main - Entry point
+ *
+ * Return: Always 0.
+ **/
+int main(void)
+{
+	_printf("Character:[%c]\n", 'H');
+	printf("Character:[%c]\n", 'H');
+	_printf("String:[%s]\n", "I am a string !");
+	printf("String:[%s]\n", "I am a string !");
+	return (0);
+}
+
+```
+
+The _putchar function:
+```C
+#include "main.h"
+#include <unistd.h>
+
+/**
+ * _putchar - writes character to stdout
+ * @c: character to print
+ *
+ * Return: Always 1 (SUCCESS), -1 (FAILURE)
+ **/
+int _putchar(char c)
+{
+	return (write(1, &c, 1));
+}
+```
+
+The _printf function:
+```C
+#include "main.h"
+
+/**
+ * _printf - A custom implementation of the printf function.
+ * @format: character string.
+ *
+ * Return: number of characters printed
+ **/
+int _printf(const char *format, ...)
+{
+	int nc = 0, idx;
+	va_list args;
+
+	va_start(args, format);
+	for (idx = 0; format && format[idx]; idx++)
+	{
+		if (format[idx] == '%')
+		{
+			nc += get_fmt(format[idx + 1])(args);
+			format++;
+		}
+		else
+		{
+			nc = _putchar(format[idx]);
+		}
+	}
+	va_end(args);
+	return (nc);
+}
+```
+The get_fmt function:
+```C
+#include "main.h"
+
+/**
+ * get_fmt - Handles format specifiers
+ * @spec: specifier
+ *
+ * Return: number of characters printed
+ **/
+int (*get_fmt(char spec))(char *)
+{
+	format_t formats[] = {
+		{"c", handle_c},
+		{"s", handle_s},
+		{"%", handle_p},
+		{NULL, NULL}
+	};
+	int i = 0;
+
+	while (formats[i].spec != NULL)
+	{
+		if (spec == formats[i].spec[0])
+			return (formats[i].handle);
+		i++;
+	}
+
+	return (0);
+}
+```
+
+The placeholder handling functions:
+```C
+#include "main.h"
+
+/**
+ * error - Prints error message
+ * @str: error message
+ *
+ * Return: Nothing
+ **/
+void error(char *str)
+{
+	int i;
+
+	for (i = 0; str[i]; ++i)
+		_putchar(str[i]);
+	_putchar('\n');
+}
+
+/**
+ * handle_c - Handles character specifier.
+ * @args: character
+ *
+ * Return: 1 (SUCCESS), -1 (FAIL)
+ **/
+int handle_c(va_list args)
+{
+	int stat;
+	char c = (char)va_arg(args, int);
+
+	if (!c)
+	{
+		error("\n");
+		return (0);
+	}
+	stat = _putchar(c);
+	return (stat);
+}
+
+/**
+ * handle_s - Handles string specifier
+ * @args: character pointer
+ *
+ * Return: Number of characters (SUCCESS), -1 (FAIL)
+ **/
+int handle_s(va_list args)
+{
+	int cnt, stat;
+	char *str = va_arg(args, char *);
+
+	if (str == NULL)
+	{
+		error("(nil)");
+		return (0);
+	}
+	for (cnt = 0; str[cnt]; ++cnt)
+	{
+		stat = _putchar(str[cnt]);
+		if (stat < 0)
+			return (stat);
+	}
+	return (cnt);
+}
+```
