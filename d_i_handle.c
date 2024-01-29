@@ -1,6 +1,20 @@
 #include "main.h"
 
 /**
+ * print_number - Prints an int number
+ * @n: number parameter
+ * @len: length of number
+ *
+ * Return: Nothing.
+ **/
+void print_number(unsigned int n, int *len)
+{
+	if ((n / 10) > 0)
+		print_number(n / 10, len);
+	*len += _putchar((n % 10) + '0');
+}
+
+/**
  * handle_d - Handles int arguments
  * @args: int argument
  *
@@ -8,18 +22,16 @@
  **/
 int handle_d(va_list args)
 {
-	int stat, numlen = 0;
+	int numlen = 0;
 	int n = va_arg(args, int);
 	int number = n;
 
 	if (n < 0)
 	{
-		stat = _putchar('-');
+		_putchar('-');
 		n = -n;
 		numlen++;
 	}
-	for (; (number / 10) > 0; ++numlen, number = number / 10)
-		_putchar((number % 10) + '0');
-
+	print_number(number, &numlen);
 	return (numlen);
 }

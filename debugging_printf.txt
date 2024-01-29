@@ -1,5 +1,5 @@
-I am trying to build a custom printf function which act almost exactly alike, I have named it as _printf. I want the printf function to not look complex so I created like an middle interface that will call functions that will respond to place holders detected in the format constant string. Help me to find errors in the code please:
-The main header file:
+I am trying to build a custom printf function which acts almost exactly like the standard library printf function, I have named it as _printf. I want the printf function to not look complex so I created like an middle interface that will call functions that will respond to place holders detected in the format constant string. I have so far been able to handle %c, %s and %% , but I am getting an output error with the %d and %i. Please help me trace errors and provide recommend expert level examples in mimicking my code style:
+The main header file:1
 ```C
 #ifndef _MAIN_H_
 #define _MAIN_H_
@@ -43,13 +43,21 @@ The main function:
  **/
 int main(void)
 {
+	int len;
+	int len2;
+
+	len = _printf("Let's try to printf a simple sentence.\n");
+	len2 = printf("Let's try to printf a simple sentence.\n");
+	_printf("Length:[%d, %i]\n", len, len2); [They are different here]
+	printf("Length:[%d, %i]\n", len, len2); [They are the same here]
 	_printf("Character:[%c]\n", 'H');
 	printf("Character:[%c]\n", 'H');
 	_printf("String:[%s]\n", "I am a string !");
 	printf("String:[%s]\n", "I am a string !");
+	_printf("%%\n");
+	printf("%%\n");
 	return (0);
 }
-
 ```
 
 The _putchar function:
@@ -116,7 +124,8 @@ int (*get_fmt(char spec))(char *)
 	format_t formats[] = {
 		{"c", handle_c},
 		{"s", handle_s},
-		{"%", handle_p},
+		{"%d", handle_d},
+		{"i", handle_d},
 		{NULL, NULL}
 	};
 	int i = 0;
@@ -194,5 +203,48 @@ int handle_s(va_list args)
 			return (stat);
 	}
 	return (cnt);
+}
+```
+
+The integer handling function:
+```C
+#include "main.h"
+
+/**
+ * print_number - Prints an int number
+ * @n: number parameter
+ * @len: length of number
+ *
+ * Return: Nothing.
+ **/
+void print_number(unsigned int n, int *len)
+{
+	if ((n / 10) > 0)
+		print_number(n / 10, len);
+	*len += _putchar((n % 10) + '0');
+}
+
+/**
+ * handle_d - Handles int arguments
+ * @args: int argument
+ *
+ * Return: no of integers
+ **/
+int handle_d(va_list args)
+{
+	int numlen = 0;
+	int n = va_arg(args, int);
+	int number = n;
+
+	if (n < 0)
+	{
+		_putchar('-');
+		n = -n;
+		numlen++;
+	}
+	for (; (number / 10) > 0; ++numlen, number = number / 10)
+		_putchar((number % 10) + '0');
+	print_number(number, &numlen);
+	return (numlen);
 }
 ```

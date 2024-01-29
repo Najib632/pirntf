@@ -23,7 +23,6 @@ void error(char *str);
 int (*get_fmt(char spec))(va_list);
 int handle_c(va_list args);
 int handle_s(va_list args);
-int handle_p(void);
 int handle_d(va_list args);
 
 #endif /*_MAIN_H_*/
