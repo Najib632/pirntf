@@ -16,26 +16,21 @@ int _printf(const char *format, ...)
 		error("empty format string!");
 		return (0);
 	}
-	if (!is_num_string(format))
-	{
-		error("Not a valid value");
-		return (-1);
-	}
 	va_start(args, format);
 	for (idx = 0; format[idx]; idx++)
 	{
 		if (format[idx] == '%')
 		{
-			if (format[idx + 1] == '%' && !va_arg(args, void *))
+			if (format[idx + 1] == '%')
 			{
 				stat = _putchar('%');
 				nc += stat;
 			}
-			else
+			if (format[idx + 1] != '%')
 			{
 				stat = get_fmt(format[idx + 1])(args);
 				if (stat < 0)
-					return (-1);
+					return (0);
 				nc += stat;
 			}
 			format++;
