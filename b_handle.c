@@ -1,19 +1,27 @@
 #include "main.h"
 
 /**
- * dec_bin - Decimal to binary conversion
- * @b: the unsigned int argument is converted to binary
+ * convbase - Conversts from one base to another
+ * @b: the unsigned int argument is converted to base
+ * @base: base to convert to
  * @len: character count
+ * @_case: character case (upper or lower)
  *
  * Return: Nothing.
  **/
-void dec_bin(unsigned int b, int *len)
+void convbase(unsigned int b, unsigned int base, int *len, char _case)
 {
-	if ((b / 2) > 0)
+	int rem;
+
+	if ((b / base) > 0)
 	{
-		dec_bin((b / 2), len);
+		convbase((b / base), base, len, _case);
 	}
-	*len += _putchar((b % 2) + '0');
+	rem = b % base;
+	if (_case >= 'a' && _case <= 'z')
+		*len += _putchar((rem > 9) ? (rem - 10) + 'a' : rem + '0');
+	else
+		*len += _putchar((rem > 9) ? (rem - 10) + 'A' : rem + '0');
 }
 
 /**
@@ -25,8 +33,9 @@ void dec_bin(unsigned int b, int *len)
 int handle_b(va_list args)
 {
 	int count = 0;
-	unsigned int dec = va_arg(args, unsigned int);
+	unsigned int dec = va_arg(args, unsigned int), base = 2;
+	char _case = 'b';
 
-	dec_bin(dec, &count);
+	convbase(dec, base, &count, _case);
 	return (count);
 }
