@@ -18,16 +18,18 @@ int (*get_fmt(char spec))(va_list)
 		{"o", handle_o},
 		{"x", handle_x},
 		{"X", handle_X},
-		{NULL, NULL}
+		{"%", negreturn},
+		{NULL, fmterr}
 	};
-	int i = 0;
+	int i = 0, j;
 
+	for (j = 0; formats[j].spec != NULL; j++)
+		;
 	while (formats[i].spec != NULL)
 	{
 		if (spec == formats[i].spec[0])
 			return (formats[i].handle);
 		i++;
 	}
-
-	return (0);
+	return (formats[j].handle);
 }

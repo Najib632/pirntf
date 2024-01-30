@@ -1,6 +1,24 @@
 #include "main.h"
 
 /**
+ * is_num_string - checks if a string is a number
+ * @str: string to be checked
+ *
+ * Return: 0 (SUCCESS), 1 (FAILURE)
+ **/
+int is_num_string(const char *str)
+{
+	int i;
+
+	for (i = 0; str[i] != '\0'; i++)
+	{
+		if (!(str[i] >= '0' && str[i] <= '9'))
+			return (0);
+	}
+	return (1);
+}
+
+/**
  * error - Prints error message
  * @str: error message
  *
@@ -43,7 +61,7 @@ int handle_c(va_list args)
  **/
 int handle_s(va_list args)
 {
-	int cnt, stat;
+	int cnt;
 	char *str = va_arg(args, char *);
 
 	if (str == NULL)
@@ -52,10 +70,6 @@ int handle_s(va_list args)
 		return (0);
 	}
 	for (cnt = 0; str[cnt]; ++cnt)
-	{
-		stat = _putchar(str[cnt]);
-		if (stat < 0)
-			return (stat);
-	}
+		_putchar(str[cnt]);
 	return (cnt);
 }

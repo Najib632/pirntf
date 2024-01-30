@@ -19,6 +19,7 @@ typedef struct format_s
 	int (*handle)(va_list);
 } format_t;
 
+int is_num_string(const char *str);
 void error(char *str);
 void print_number(unsigned int n, int *len);
 void convbase(unsigned int b, unsigned int base, int *len, char _case);
@@ -31,5 +32,7 @@ int handle_u(va_list args);
 int handle_o(va_list args);
 int handle_x(va_list args);
 int handle_X(va_list args);
+int negreturn(va_list args);
+int fmterr(va_list args);
 
 #endif /*_MAIN_H_*/

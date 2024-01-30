@@ -1,5 +1,6 @@
-I am trying to build a custom printf function which acts almost exactly like the standard library printf function, I have named it as _printf. I want the printf function to not look complex so I created like an middle interface that will call functions that will respond to place holders detected in the format constant string. I have so far been able to handle %c, %s and %% , but I am getting an output error with the %d and %i. Please help me trace errors and provide recommend expert level examples in mimicking my code style:
-The main header file:1
+I want you to act as a Senior Software Engineer who specializes in C and C++ programming language, answering questions from novice or intermediate programmers. I will provide questions in C programming language and it will be your job to provide answers that are safe C code and are in line with ISO standards and to explain them in easy-to-understand terms. This could contain providing step-by-step instructions for solving a particular task, a detailed explanation of an error, or suggesting online resources for further study. My first request is "I need your help, sir. I used the following flags when compiling with GCC compiler, gcc -Wall -Werror -Wextra -pedantic -Wno-format -std=gnu89. I am getting error messages from the compiler when trying to return a pointer from a function pointer due to wrong syntax:
+
+The main header file:
 ```C
 #ifndef _MAIN_H_
 #define _MAIN_H_
@@ -89,20 +90,38 @@ The _printf function:
  **/
 int _printf(const char *format, ...)
 {
-	int nc = 0, idx;
+	int nc = 0, idx, stat;
 	va_list args;
 
+	if (format == NULL)
+	{
+		error("empty format string!");
+		return (-1);
+	}
 	va_start(args, format);
-	for (idx = 0; format && format[idx]; idx++)
+	for (idx = 0; format[idx]; idx++)
 	{
 		if (format[idx] == '%')
 		{
-			nc += get_fmt(format[idx + 1])(args);
+			if (format[idx + 1] == '%' && !va_arg(args, void *))
+			{
+				stat = _putchar('%');
+				nc += stat;
+			}
+			if (format[idx + 1] != '%')
+			{
+				format_t gstat = get_fmt(format[idx + 1])(args);
+
+				stat = gstat.handle [error: assignment to 'int' from 'int (*)(__va_list_tag *)' makes integer from pointer without a cast [-Wint-conversion]]
+				if (stat < 0 || gstat == NULL)
+					return (-1);
+				nc += stat;
+			}
 			format++;
 		}
 		else
 		{
-			nc = _putchar(format[idx]);
+			nc += _putchar(format[idx]);
 		}
 	}
 	va_end(args);
@@ -119,7 +138,7 @@ The get_fmt function:
  *
  * Return: number of characters printed
  **/
-int (*get_fmt(char spec))(char *)
+format_t (*get_fmt(char spec))(char *)
 {
 	format_t formats[] = {
 		{"c", handle_c},
@@ -133,7 +152,7 @@ int (*get_fmt(char spec))(char *)
 	while (formats[i].spec != NULL)
 	{
 		if (spec == formats[i].spec[0])
-			return (formats[i].handle);
+			return (&formats[i]); [error: returning 'format_t *' {aka 'struct format_s *'} from a function with inc...aka 'struct format_s (*)(__va_list_tag *)'} [-Wincompatible-pointer-types]]
 		i++;
 	}
 
@@ -248,3 +267,4 @@ int handle_d(va_list args)
 	return (numlen);
 }
 ```
+"
