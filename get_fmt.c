@@ -18,7 +18,6 @@ int (*get_fmt(char spec))(va_list)
 		{"o", handle_o},
 		{"x", handle_x},
 		{"X", handle_X},
-		{"%", negreturn},
 		{NULL, fmterr}
 	};
 	int i = 0, j;
