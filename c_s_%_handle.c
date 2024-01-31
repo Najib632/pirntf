@@ -36,17 +36,18 @@ void error(char *str)
 /**
  * handle_c - Handles character specifier.
  * @args: character
+ * @buff: pointer to buffer
  *
  * Return: 1 (SUCCESS), -1 (FAIL)
  **/
-int handle_c(va_list args)
+int handle_c(va_list args, char *buff)
 {
 	int stat;
 	char c = (char)va_arg(args, int);
 
 	if (!c)
 	{
-		error(" ");
+		fmterr(args);
 		return (0);
 	}
 	stat = _putchar(c);
@@ -56,10 +57,11 @@ int handle_c(va_list args)
 /**
  * handle_s - Handles string specifier
  * @args: character pointer
+ * @buff: pointer to buffer
  *
  * Return: Number of characters (SUCCESS), -1 (FAIL)
  **/
-int handle_s(va_list args)
+int handle_s(va_list args, char *buff)
 {
 	int cnt;
 	char *str = va_arg(args, char *);

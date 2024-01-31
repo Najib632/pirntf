@@ -9,6 +9,7 @@
 int _printf(const char *format, ...)
 {
 	int nc = 0, idx, stat;
+	char buff[BUF_SIZE];
 	va_list args;
 
 	if (format == NULL)
@@ -23,12 +24,11 @@ int _printf(const char *format, ...)
 		{
 			if (format[idx + 1] == '%')
 			{
-				stat = _putchar('%');
-				nc += stat;
+				buff[idx] = '%';
 			}
-			if (format[idx + 1] != '%')
+			else
 			{
-				stat = get_fmt(format[idx + 1])(args);
+				stat = get_fmt(format[idx + 1])(args, buff);
 				if (stat < 0)
 					return (0);
 				nc += stat;
@@ -37,7 +37,7 @@ int _printf(const char *format, ...)
 		}
 		else
 		{
-			nc += _putchar(format[idx]);
+			buff[idx] = format[idx];
 		}
 	}
 	va_end(args);

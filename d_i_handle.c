@@ -7,20 +7,21 @@
  *
  * Return: Nothing.
  **/
-void print_number(unsigned int n, int *len)
+void print_number(unsigned int n, char *len)
 {
 	if ((n / 10) > 0)
-		print_number(n / 10, len);
-	*len += _putchar((n % 10) + '0');
+		print_number(n / 10, len + 1);
+	*len = _putchar((n % 10) + '0');
 }
 
 /**
  * handle_d - Handles int arguments
  * @args: int argument
+ * @buff: pointer to buff
  *
  * Return: no of integers
  **/
-int handle_d(va_list args)
+int handle_d(va_list args, char *buff)
 {
 	int numlen = 0;
 	int n = va_arg(args, int);
@@ -28,11 +29,10 @@ int handle_d(va_list args)
 
 	if (n < 0)
 	{
-		_putchar('-');
+		*buff++ = '-';
 		n = -n;
-		numlen++;
 	}
 	number = n;
-	print_number(number, &numlen);
+	print_number(number, buff);
 	return (numlen);
 }

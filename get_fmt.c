@@ -6,7 +6,7 @@
  *
  * Return: number of characters printed
  **/
-int (*get_fmt(char spec))(va_list)
+int (*get_fmt(char spec))(va_list, char *)
 {
 	format_t formats[] = {
 		{"c", handle_c},

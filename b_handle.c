@@ -31,10 +31,11 @@ int argcnt(const char *format)
 /**
  * negreturn - Returns minus one
  * @args: unused variable
+ * @buff: pointer to buff
  *
  * Return: Always -1.
  **/
-int negreturn(__attribute((unused))va_list args)
+int negreturn(__attribute((unused))va_list args, char *buff)
 {
 	error("Not expecting an argument.");
 	return (-1);
@@ -43,10 +44,11 @@ int negreturn(__attribute((unused))va_list args)
 /**
  * fmterr - Return minus for argument error
  * @args: unused variable
+ * @buff: pointer to buff
  *
  * Return: Always -1.
  **/
-int fmterr(__attribute((unused))va_list args)
+int fmterr(__attribute((unused))va_list args, char *buff)
 {
 	error("Error handling format specifier.");
 	return (-1);
@@ -56,38 +58,41 @@ int fmterr(__attribute((unused))va_list args)
  * convbase - Conversts from one base to another
  * @b: the unsigned int argument is converted to base
  * @base: base to convert to
- * @len: character count
  * @_case: character case (upper or lower)
+ * @buff: pointer to buffer
  *
  * Return: Nothing.
  **/
-void convbase(unsigned int b, unsigned int base, int *len, char _case)
+void convbase(unsigned int b, unsigned int base, char _case, char *buff)
 {
 	int rem;
 
 	if ((b / base) > 0)
 	{
-		convbase((b / base), base, len, _case);
+		convbase((b / base), base, _case, buff);
 	}
 	rem = b % base;
 	if (_case >= 'a' && _case <= 'f')
-		*len += _putchar((rem > 9) ? (rem - 10) + 'a' : rem + '0');
+		*buff++ = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
 	else
-		*len += _putchar((rem > 9) ? (rem - 10) + 'A' : rem + '0');
+		*buff++ = (rem > 9) ? (rem - 10) + 'A' : rem + '0';
 }
 
 /**
  * handle_b - Converts unsigned int to binary
  * @args: the unsigned int argument is converted to binary
+ * @buff: pointer to buff
  *
  * Return: character count (SUCCESS), -1 (FAILURE)
  **/
-int handle_b(va_list args)
+int handle_b(va_list args, char *buff)
 {
-	int count = 0;
+	int count;
 	unsigned int dec = va_arg(args, unsigned int), base = 2;
 	char _case = 'b';
 
-	convbase(dec, base, &count, _case);
+	convbase(dec, base, _case, buff);
+	for (count = 0; (dec / base) > 0u; count++)
+		;
 	return (count);
 }
