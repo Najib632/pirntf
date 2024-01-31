@@ -36,7 +36,7 @@ int argcnt(const char *format)
  **/
 int negreturn(__attribute((unused))va_list args)
 {
-	error("Not expecting an argument.");
+	error(" ");
 	return (-1);
 }
 
