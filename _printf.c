@@ -26,7 +26,7 @@ int _printf(const char *format, ...)
 				stat = _putchar('%');
 				nc += stat;
 			}
-			if (format[idx + 1] != '%')
+			else
 			{
 				stat = get_fmt(format[idx + 1])(args);
 				if (stat < 0)
