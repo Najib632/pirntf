@@ -14,7 +14,7 @@ int _printf(const char *format, ...)
 
 	if (format == NULL)
 	{
-		error("empty format string!");
+		_putchar('\n');
 		return (0);
 	}
 	va_start(args, format);

@@ -68,7 +68,7 @@ int handle_s(va_list args, char *buff)
 
 	if (str == NULL)
 	{
-		error("(nil)");
+		error(" ");
 		return (0);
 	}
 	for (cnt = 0; str[cnt]; ++cnt)
