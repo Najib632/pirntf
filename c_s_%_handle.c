@@ -46,7 +46,7 @@ int handle_c(va_list args)
 
 	if (!c)
 	{
-		error(" ");
+		_putchar('\n');
 		return (0);
 	}
 	stat = _putchar(c);
@@ -66,7 +66,7 @@ int handle_s(va_list args)
 
 	if (str == NULL)
 	{
-		error("(nil)");
+		_putchar('\n');
 		return (0);
 	}
 	for (cnt = 0; str[cnt]; ++cnt)
