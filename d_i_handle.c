@@ -1,38 +1,50 @@
 #include "main.h"
 
 /**
- * print_number - Prints an int number
- * @n: number parameter
- * @len: length of number
+ * print_number - write a number into buffer
+ * @n: number to write
+ * @buff: pointer to buffer
+ * @bufpos: buffer position
  *
- * Return: Nothing.
- **/
-void print_number(unsigned int n, char *len)
+ * Return: Nothing
+ */
+void print_number(unsigned int n, char *buff, int *bufpos)
 {
-	if ((n / 10) > 0)
-		print_number(n / 10, len + 1);
-	*len = _putchar((n % 10) + '0');
+	int i = 0, init = *bufpos;
+	unsigned int temp = n;
+
+	while (temp > 0)
+	{
+		temp /= 10;
+		i++;
+	}
+	*bufpos = *bufpos + i;
+	for (; i > 0; i--)
+	{
+		buff[init + i - 1] = (n % 10) + '0';
+		n /= 10;
+	}
 }
 
 /**
  * handle_d - Handles int arguments
  * @args: int argument
  * @buff: pointer to buff
+ * @bufpos: pointer to buffer position
  *
- * Return: no of integers
+ * Return: 1 (SUCCESS), -1 (FAILURE)
  **/
-int handle_d(va_list args, char *buff)
+int handle_d(va_list *args, char *buff, int *bufpos)
 {
-	int numlen = 0;
-	int n = va_arg(args, int);
-	unsigned int number;
+	int stat = 1;
+	int n = va_arg(*args, int);
 
 	if (n < 0)
 	{
-		*buff++ = '-';
+		buff[*bufpos] = '-';
+		*bufpos = *bufpos + 1;
 		n = -n;
 	}
-	number = n;
-	print_number(number, buff);
-	return (numlen);
+	print_number(n, buff, bufpos);
+	return (stat);
 }

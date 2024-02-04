@@ -1,4 +1,7 @@
-I want you to act as a Senior Software Engineer who specializes in C and C++ programming language, answering questions from novice or intermediate programmers. I will provide questions in C programming language and it will be your job to provide answers that are safe C code and are in line with ISO standards and to explain them in easy-to-understand terms. This could contain providing step-by-step instructions for solving a particular task, a detailed explanation of an error, or suggesting online resources for further study. My first request is "I need your help, sir. I used the following flags when compiling with GCC compiler, gcc -Wall -Werror -Wextra -pedantic -Wno-format -std=gnu89. I am getting error messages from the compiler when trying to return a pointer from a function pointer due to wrong syntax:
+I want you to act as a Senior Software Engineer who specializes in C and C++ programming language, answering questions from novice or intermediate programmers. I will provide questions in C programming language and it will be your job to provide answers that are safe C code and are in line with ISO standards and to explain them in easy-to-understand terms. This could contain providing step-by-step instructions for solving a particular task, a detailed explanation of an error, or suggesting online resources for further study. My first request is "I need your help, sir. I used the following flags when compiling with GCC compiler, gcc -Wall -Werror -Wextra -pedantic -Wno-format -std=gnu89. I am not getting any error messages from the compiler, but when I run the program I get the following error message:
+munmap_chunk(): invalid pointer
+Aborted (core dumped)
+This is the code below:
 
 The main header file:
 ```C
@@ -7,7 +10,9 @@ The main header file:
 
 #include <stdarg.h>
 #include <stdlib.h>
+#include <unistd.h>
 
+#define BUF_SIZE 1024
 
 int _putchar(char c);
 int _printf(const char *format, ...);
@@ -20,13 +25,24 @@ int _printf(const char *format, ...);
 typedef struct format_s
 {
 	char *spec;
-	int (*handle)(va_list);
+	int (*handle)(va_list, char *);
 } format_t;
 
-int (*get_fmt(char spec))(va_list);
-int handle_c(va_list args);
-int handle_s(va_list args);
-int handle_d(va_list args);
+int _strlen(char *str);
+int check_format(char);
+int buffwrite(char *buff, char *str);
+int is_num_string(const char *str);
+void print_number(unsigned int n, char *buff);
+void convbase(unsigned int b, unsigned int base, char _case, char *buff);
+int (*get_fmt(char spec))(va_list, char *);
+int handle_c(va_list args, char *);
+int handle_s(va_list args, char *);
+int handle_d(va_list args, char *);
+int handle_b(va_list args, char *);
+int handle_u(va_list args, char *);
+int handle_o(va_list args, char *);
+int handle_x(va_list args, char *);
+int handle_X(va_list args, char *);
 
 #endif /*_MAIN_H_*/
 ```
@@ -37,11 +53,6 @@ The main function:
 #include <limits.h>
 #include "main.h"
 
-/**
- * main - Entry point
- *
- * Return: Always 0.
- **/
 int main(void)
 {
 	int len;
@@ -51,12 +62,6 @@ int main(void)
 	len2 = printf("Let's try to printf a simple sentence.\n");
 	_printf("Length:[%d, %i]\n", len, len2); [They are different here]
 	printf("Length:[%d, %i]\n", len, len2); [They are the same here]
-	_printf("Character:[%c]\n", 'H');
-	printf("Character:[%c]\n", 'H');
-	_printf("String:[%s]\n", "I am a string !");
-	printf("String:[%s]\n", "I am a string !");
-	_printf("%%\n");
-	printf("%%\n");
 	return (0);
 }
 ```
@@ -66,12 +71,6 @@ The _putchar function:
 #include "main.h"
 #include <unistd.h>
 
-/**
- * _putchar - writes character to stdout
- * @c: character to print
- *
- * Return: Always 1 (SUCCESS), -1 (FAILURE)
- **/
 int _putchar(char c)
 {
 	return (write(1, &c, 1));
@@ -82,48 +81,41 @@ The _printf function:
 ```C
 #include "main.h"
 
-/**
- * _printf - A custom implementation of the printf function.
- * @format: character string.
- *
- * Return: number of characters printed
- **/
 int _printf(const char *format, ...)
 {
-	int nc = 0, idx, stat;
+	int nc = 0, idx;
+	char *buff = malloc(BUF_SIZE * sizeof(char));
 	va_list args;
 
-	if (format == NULL)
-	{
-		error("empty format string!");
-		return (-1);
-	}
+	if (format == NULL || buff == NULL)
+		return (0);
 	va_start(args, format);
 	for (idx = 0; format[idx]; idx++)
 	{
 		if (format[idx] == '%')
 		{
-			if (format[idx + 1] == '%' && !va_arg(args, void *))
+			if (format[idx + 1] == '%')
 			{
-				stat = _putchar('%');
-				nc += stat;
+				*buff++ = '%';
 			}
-			if (format[idx + 1] != '%')
+			else if (format[idx + 1] != '%' && check_format(format[idx + 1]))
 			{
-				format_t gstat = get_fmt(format[idx + 1])(args);
-
-				stat = gstat.handle [error: assignment to 'int' from 'int (*)(__va_list_tag *)' makes integer from pointer without a cast [-Wint-conversion]]
-				if (stat < 0 || gstat == NULL)
-					return (-1);
-				nc += stat;
+				get_fmt(format[idx + 1])(args, &buff);
+			}
+			else
+			{
+				*buff++ = '%';
+				*buff++ = format[idx + 1];
 			}
 			format++;
 		}
 		else
 		{
-			nc += _putchar(format[idx]);
+			*buff++ = format[idx];
 		}
 	}
+	nc = write(1, buff, _strlen(buff));
+	free(buff);
 	va_end(args);
 	return (nc);
 }
@@ -132,31 +124,51 @@ The get_fmt function:
 ```C
 #include "main.h"
 
-/**
- * get_fmt - Handles format specifiers
- * @spec: specifier
- *
- * Return: number of characters printed
- **/
-format_t (*get_fmt(char spec))(char *)
+int check_format(char spec)
+{
+	int i, stat;
+	char *fmtspec = "csdiuoxXSprR";
+
+	for (i = 0; fmtspec[i]; i++)
+	{
+		if (fmtspec[i] == spec)
+		{
+			stat = 1;
+			break;
+		}
+		else
+		{
+			stat = 0;
+		}
+	}
+	return (stat);
+}
+
+int (*get_fmt(char spec))(va_list, char *)
 {
 	format_t formats[] = {
 		{"c", handle_c},
 		{"s", handle_s},
-		{"%d", handle_d},
+		{"d", handle_d},
 		{"i", handle_d},
+		{"b", handle_b},
+		{"u", handle_u},
+		{"o", handle_o},
+		{"x", handle_x},
+		{"X", handle_X},
 		{NULL, NULL}
 	};
-	int i = 0;
+	int i = 0, j;
 
+	for (j = 0; formats[j].spec != NULL; j++)
+		;
 	while (formats[i].spec != NULL)
 	{
 		if (spec == formats[i].spec[0])
-			return (&formats[i]); [error: returning 'format_t *' {aka 'struct format_s *'} from a function with inc...aka 'struct format_s (*)(__va_list_tag *)'} [-Wincompatible-pointer-types]]
+			return (formats[i].handle);
 		i++;
 	}
-
-	return (0);
+	return (formats[j].handle);
 }
 ```
 
@@ -164,64 +176,56 @@ The placeholder handling functions:
 ```C
 #include "main.h"
 
-/**
- * error - Prints error message
- * @str: error message
- *
- * Return: Nothing
- **/
-void error(char *str)
+int buffwrite(char *buff, char *str)
 {
 	int i;
 
-	for (i = 0; str[i]; ++i)
-		_putchar(str[i]);
-	_putchar('\n');
+	if (str == NULL)
+		return (0);
+
+	for (i = 0; str[i]; i++)
+		*buff++ = str[i];
+	return (i);
 }
 
-/**
- * handle_c - Handles character specifier.
- * @args: character
- *
- * Return: 1 (SUCCESS), -1 (FAIL)
- **/
-int handle_c(va_list args)
+int is_num_string(const char *str)
 {
-	int stat;
+	int i;
+
+	for (i = 0; str[i] != '\0'; i++)
+	{
+		if (!(str[i] >= '0' && str[i] <= '9'))
+			return (0);
+	}
+	return (1);
+}
+
+int handle_c(va_list args, char *buff)
+{
+	int stat = 1;
 	char c = (char)va_arg(args, int);
 
 	if (!c)
 	{
-		error("\n");
+		*buff++ = '\n';
 		return (0);
 	}
-	stat = _putchar(c);
+	*buff++ = c;
 	return (stat);
 }
 
-/**
- * handle_s - Handles string specifier
- * @args: character pointer
- *
- * Return: Number of characters (SUCCESS), -1 (FAIL)
- **/
-int handle_s(va_list args)
+int handle_s(va_list args, char *buff)
 {
-	int cnt, stat;
+	int stat;
 	char *str = va_arg(args, char *);
 
 	if (str == NULL)
 	{
-		error("(nil)");
+		buffwrite(buff, "(null)");
 		return (0);
 	}
-	for (cnt = 0; str[cnt]; ++cnt)
-	{
-		stat = _putchar(str[cnt]);
-		if (stat < 0)
-			return (stat);
-	}
-	return (cnt);
+	stat = buffwrite(buff, str);
+	return (stat);
 }
 ```
 
@@ -229,42 +233,120 @@ The integer handling function:
 ```C
 #include "main.h"
 
-/**
- * print_number - Prints an int number
- * @n: number parameter
- * @len: length of number
- *
- * Return: Nothing.
- **/
-void print_number(unsigned int n, int *len)
+void print_number(unsigned int n, char *buff)
 {
 	if ((n / 10) > 0)
-		print_number(n / 10, len);
-	*len += _putchar((n % 10) + '0');
+		print_number(n / 10, buff + 1);
+	*buff = (n % 10) + '0';
 }
 
-/**
- * handle_d - Handles int arguments
- * @args: int argument
- *
- * Return: no of integers
- **/
-int handle_d(va_list args)
+int handle_d(va_list args, char *buff)
 {
-	int numlen = 0;
+	int numlen = 1;
 	int n = va_arg(args, int);
-	int number = n;
+	unsigned int number;
 
 	if (n < 0)
 	{
-		_putchar('-');
+		*buff++ = '-';
 		n = -n;
-		numlen++;
 	}
-	for (; (number / 10) > 0; ++numlen, number = number / 10)
-		_putchar((number % 10) + '0');
-	print_number(number, &numlen);
+	number = n;
+	print_number(number, buff);
 	return (numlen);
+}
+```
+
+The usinged integer, ocatal, hexadecimal handling functions:
+```C
+#include "main.h"
+
+int handle_u(va_list args, char *buff)
+{
+	unsigned int u = va_arg(args, unsigned int);
+	int count;
+
+	print_number(u, buff);
+	for (count = 0; (u / 10) > 0u; count++)
+		;
+	return (count);
+}
+
+int handle_o(va_list args, char *buff)
+{
+	int count;
+	unsigned int o = va_arg(args, unsigned int), base = 8;
+	char _case = 'o';
+
+	convbase(o, base, _case, buff);
+	for (count = 0; (o / base) > 0u; count++)
+		;
+	return (count);
+}
+
+int handle_x(va_list args, char *buff)
+{
+	unsigned int x = va_arg(args, unsigned int), base = 16;
+	int count;
+	char _case = 'x';
+
+	convbase(x, base, _case, buff);
+	for (count = 0; (x / base) > 0u; count++)
+		;
+	return (count);
+}
+
+int handle_X(va_list args, char *buff)
+{
+	unsigned int X = va_arg(args, unsigned int), base = 16;
+	int count;
+	char _case = 'X';
+
+	convbase(X, base, _case, buff);
+	for (count = 0; (X / base) > 0u; count++)
+		;
+	return (count);
+}
+```
+
+The binary conversion handling functions:
+```C
+#include "main.h"
+
+int _strlen(char *str)
+{
+	int i;
+
+	for (i = 0; str[i]; i++)
+		;
+	return (i);
+}
+
+void convbase(unsigned int b, unsigned int base, char _case, char *buff)
+{
+	int rem;
+
+	if ((b / base) > 0)
+	{
+		convbase((b / base), base, _case, buff);
+	}
+	rem = b % base;
+	if (_case >= 'a' && _case <= 'f')
+		*buff++ = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
+	else
+		*buff++ = (rem > 9) ? (rem - 10) + 'A' : rem + '0';
+}
+
+int handle_b(va_list args, char *buff)
+{
+	int count;
+	unsigned int dec = va_arg(args, unsigned int), base = 2;
+	char _case = 'b';
+
+	convbase(dec, base, _case, buff);
+	for (count = 0; (dec / base) > 0u; count++)
+		;
+	return (count);
 }
 ```
 "

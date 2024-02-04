@@ -1,56 +1,46 @@
 #include "main.h"
 
 /**
- * is_num_string - checks if a string is a number
- * @str: string to be checked
+ * buffwrite - write a string into the buffer
+ * @str: string to be written into buffer
+ * @buff: pointer to buffer
+ * @bufpos: pointer to buffer index
  *
- * Return: 0 (SUCCESS), 1 (FAILURE)
+ * Return: 1 (SUCCESS), -1 (FAILURE)
  **/
-int is_num_string(const char *str)
+int buffwrite(char *buff, char *str, int *bufpos)
 {
 	int i;
 
-	for (i = 0; str[i] != '\0'; i++)
-	{
-		if (!(str[i] >= '0' && str[i] <= '9'))
-			return (0);
-	}
+	if (str == NULL)
+		return (-1);
+
+	for (i = 0; str[i]; i++, *bufpos = *bufpos + 1)
+		buff[*bufpos] = str[i];
 	return (1);
-}
-
-/**
- * error - Prints error message
- * @str: error message
- *
- * Return: Nothing
- **/
-void error(char *str)
-{
-	int i;
-
-	for (i = 0; str[i]; ++i)
-		_putchar(str[i]);
-	_putchar('\n');
 }
 
 /**
  * handle_c - Handles character specifier.
  * @args: character
  * @buff: pointer to buffer
+ * @bufpos: pointer to buffer index
  *
  * Return: 1 (SUCCESS), -1 (FAIL)
  **/
-int handle_c(va_list args, char *buff)
+int handle_c(va_list *args, char *buff, int *bufpos)
 {
-	int stat;
-	char c = (char)va_arg(args, int);
+	int stat = 1;
+	char c = (char)va_arg(*args, int);
 
 	if (!c)
 	{
-		fmterr(args);
-		return (0);
+		buff[*bufpos] = '\n';
+		*bufpos = *bufpos + 1;
+		return (-1);
 	}
-	stat = _putchar(c);
+	buff[*bufpos] = c;
+	*bufpos = *bufpos + 1;
 	return (stat);
 }
 
@@ -58,20 +48,20 @@ int handle_c(va_list args, char *buff)
  * handle_s - Handles string specifier
  * @args: character pointer
  * @buff: pointer to buffer
+ * @bufpos: pointer to buffer index
  *
- * Return: Number of characters (SUCCESS), -1 (FAIL)
+ * Return: 1 (SUCCESS), -1 (FAIL)
  **/
-int handle_s(va_list args, char *buff)
+int handle_s(va_list *args, char *buff, int *bufpos)
 {
-	int cnt;
-	char *str = va_arg(args, char *);
+	int stat;
+	char *str = va_arg(*args, char *);
 
 	if (str == NULL)
 	{
-		error(" ");
-		return (0);
+		buffwrite(buff, "(null)", bufpos);
+		return (-1);
 	}
-	for (cnt = 0; str[cnt]; ++cnt)
-		_putchar(str[cnt]);
-	return (cnt);
+	stat = buffwrite(buff, str, bufpos);
+	return (stat);
 }
