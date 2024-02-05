@@ -25,7 +25,7 @@ typedef struct format_s
 int _strlen(char *str);
 int buffwrite(char *buff, char *str, int *bufpos);
 int is_num_string(const char *str);
-int check_format(char spec);
+int check_format(char spec, va_list *args, char *buff, int *bufpos);
 void print_number(unsigned int n, char *buff, int *bufpos);
 void convbase(unsigned long int, unsigned int, char, char *, int *);
 int (*get_fmt(char spec))(va_list *, char *, int *);

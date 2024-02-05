@@ -1,25 +1,6 @@
 #include "main.h"
 
 /**
- * check_format - Checks if format specifier is valid
- * @spec: format specifier
- *
- * Return: 1 (SUCCESS), 0 (FAIL)
- **/
-int check_format(char spec)
-{
-	int i;
-	char *fmtspec = "csdiuoxXSprR";
-
-	for (i = 0; fmtspec[i]; i++)
-	{
-		if (fmtspec[i] == spec)
-			return (1);
-	}
-	return (0);
-}
-
-/**
  * get_fmt - Handles format specifiers
  * @spec: specifier
  *
@@ -42,4 +23,29 @@ int (*get_fmt(char spec))(va_list *, char *, int *)
 		i++;
 	}
 	return (NULL);
+}
+
+/**
+ * check_format - Checks if format specifier is valid
+ * @spec: format specifier
+ * @args: pointer to va_list type
+ * @buff: pointer to buffer
+ * @bufpos: pointer to buffer index
+ *
+ * Return: 1 (SUCCESS), 0 (FAIL)
+ **/
+int check_format(char spec, va_list *args, char *buff, int *bufpos)
+{
+	int i;
+	char *fmtspec = "csdiuoxXSprR";
+
+	for (i = 0; fmtspec[i]; i++)
+	{
+		if (fmtspec[i] == spec)
+		{
+			get_fmt(spec)(args, buff, bufpos);
+			return (1);
+		}
+	}
+	return (0);
 }

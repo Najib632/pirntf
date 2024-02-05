@@ -27,7 +27,7 @@ int _printf(const char *format, ...)
 			}
 			else if (format[idx + 1] != '%')
 			{
-				if (!check_format(format[idx + 1]))
+				if (!check_format(format[idx + 1], &args, buff, &bufpos))
 				{
 					buff[bufpos++] = '%';
 					buff[bufpos++] = format[idx + 1];
