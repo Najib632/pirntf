@@ -9,7 +9,7 @@
  **/
 int _printf(const char *format, ...)
 {
-	int nc = 0, idx, bufpos = 0;
+	int nc = 0, idx, bufpos = 0, stat;
 	char *buff = malloc(BUF_SIZE * sizeof(char));
 	va_list args;
 
@@ -27,22 +27,21 @@ int _printf(const char *format, ...)
 			}
 			else if (format[idx + 1] != '%')
 			{
-				if (!check_format(format[idx + 1], &args, buff, &bufpos))
+				stat = check_format(format[idx + 1], &args, buff, &bufpos);
+				if (stat == 0)
 				{
 					buff[bufpos++] = '%';
 					buff[bufpos++] = format[idx + 1];
 				}
+				if (stat == -1)
+					return (1);
 			}
 			format++;
 		}
 		else if (format[idx] != '%')
-		{
 			buff[bufpos++] = format[idx];
-		}
 		else
-		{
 			return (-1);
-		}
 	}
 	nc =  write(1, buff, _strlen(buff));
 	va_end(args);
