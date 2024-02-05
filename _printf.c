@@ -33,8 +33,6 @@ int _printf(const char *format, ...)
 					buff[bufpos++] = '%';
 					buff[bufpos++] = format[idx + 1];
 				}
-				if (stat == -1)
-					return (1);
 			}
 			format++;
 		}
