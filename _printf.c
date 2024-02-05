@@ -41,7 +41,7 @@ int _printf(const char *format, ...)
 		else
 			return (-1);
 	}
-	nc =  write(1, buff, _strlen(buff));
+	nc =  write(1, buff, bufpos);
 	va_end(args);
 	free(buff);
 	return (nc);

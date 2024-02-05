@@ -43,10 +43,7 @@ int check_format(char spec, va_list *args, char *buff, int *bufpos)
 	{
 		if (fmtspec[i] == spec)
 		{
-			if (get_fmt(spec)(args, buff, bufpos) == -1)
-			{
-				return (-1);
-			}
+			get_fmt(spec)(args, buff, bufpos);
 			return (1);
 		}
 	}
