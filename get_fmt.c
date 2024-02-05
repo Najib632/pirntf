@@ -37,7 +37,7 @@ int (*get_fmt(char spec))(va_list *, char *, int *)
 int check_format(char spec, va_list *args, char *buff, int *bufpos)
 {
 	int i;
-	char *fmtspec = "csdiuoxXSprR";
+	char *fmtspec = "csdiuoxXbSprR";
 
 	for (i = 0; fmtspec[i]; i++)
 	{
