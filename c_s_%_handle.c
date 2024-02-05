@@ -35,7 +35,6 @@ int handle_c(va_list *args, char *buff, int *bufpos)
 
 	if (!c)
 	{
-		buff[*bufpos] = '\n';
 		*bufpos = *bufpos + 1;
 		return (-1);
 	}

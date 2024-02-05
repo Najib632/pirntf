@@ -39,8 +39,13 @@ int _printf(const char *format, ...)
 		{
 			buff[bufpos++] = format[idx];
 		}
+		else
+		{
+			return (-1);
+		}
 	}
 	nc =  write(1, buff, _strlen(buff));
 	va_end(args);
+	free(buff);
 	return (nc);
 }
