@@ -43,8 +43,6 @@ int _printf(const char *format, ...)
 	}
 	nc =  write(1, buff, bufpos);
 	free(buff);
-	if (nc < 0 || bufpos > BUF_SIZE)
-		return (-1);
 	va_end(args);
 	return (nc);
 }
