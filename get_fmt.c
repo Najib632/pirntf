@@ -11,7 +11,7 @@ int (*get_fmt(char spec))(va_list *, char *, int *)
 	format_t formats[] = {
 		{"c", handle_c}, {"s", handle_s}, {"d", handle_d}, {"i", handle_d},
 		{"b", handle_b}, {"u", handle_u}, {"o", handle_o}, {"x", handle_x},
-		{"X", handle_X}, {"S", NULL}, {"p", NULL}, {"r", NULL},
+		{"X", handle_X}, {"S", handle_S}, {"p", NULL}, {"r", NULL},
 		{"R", NULL}, {NULL, NULL}
 	};
 	int i = 0;

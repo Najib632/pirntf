@@ -37,5 +37,6 @@ int handle_u(va_list *args, char *, int *);
 int handle_o(va_list *args, char *, int *);
 int handle_x(va_list *args, char *, int *);
 int handle_X(va_list *args, char *, int *);
+int handle_S(va_list *args, char *, int *);
 
 #endif /*_MAIN_H_*/
