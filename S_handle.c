@@ -1,6 +1,23 @@
 #include "main.h"
 
 /**
+ * check_size - checks if size alloc is greater than BUF_SIZE
+ * @size: current index of buffer
+ * @buff: buffer size
+ *
+ * Return: 1 (SUCCESS), 0 (FAILURE)
+ **/
+int check_size(char *buff, int size)
+{
+	if (size > BUF_SIZE)
+	{
+		write(1, buff, BUF_SIZE - 1);
+		return (0);
+	}
+	return (1);
+}
+
+/**
  * handle_S - Non printable characters are printed this way: \xHEXVAL
  * @args: pointer to va_list object
  * @buff: pointer to buffer
@@ -23,11 +40,12 @@ int handle_S(va_list *args, char *buff, int *bufpos)
 	{
 		if ((str[i] > 0 && str[i] < 32) || str[i] >= 127)
 		{
+			buff[++*bufpos] = '\\';
 			c = (unsigned char) str[i];
 			if (c > 0 && c < 16)
-				buffwrite(buff, "\\x0", bufpos);
+				buffwrite(buff, "x0", bufpos);
 			else
-				buffwrite(buff, "\\x", bufpos);
+				buffwrite(buff, "x", bufpos);
 			convbase(c, base, 'X', buff, bufpos);
 		}
 		else
